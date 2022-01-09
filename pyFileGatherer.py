@@ -1,22 +1,38 @@
 #!/usr/bin/env python3
+
 import io
 import os
 import re
 import sys
+import argparse
 from glob import glob
 from tarfile import TarFile, TarInfo, TarError
 from datetime import datetime
 
 
+# TODO: add ability to load config from ~/.config/pyfg
+# TODO: Use argparse
+# TODO: Add command line switches for
+#       -h,
+#       -c (config location)
+#       -n (filename/location) Check permissions on filename/location
+#       -f Files to add to archive. Throw error if no config files are specified in config or using -f
+#       -t compression type, default: xz
+#       -D enable debug output
+
 DEBUG = False
 
 args = sys.argv
 
-FILE_NAME = "configs.xz"
+
+FILE_NAME = f".config/sysConfs/configs-{datetime.now().strftime('%Y%m%d%H%M%S')}.xz"
 
 # TODO: set output dir from config file
-COMPRESSED_OUTPUT_DIR = os.getcwd()
 
+if DEBUG:
+    COMPRESSED_OUTPUT_DIR = os.getcwd()
+else:
+    COMPRESSED_OUTPUT_DIR = os.path.expanduser("~")
 
 files = {
     "grub": [os.path.abspath("/etc/default/grub"),
@@ -28,7 +44,8 @@ files = {
     },
     "fstab": os.path.abspath("/etc/fstab"),
     "genkernel_config": os.path.abspath("/etc/genkernel.conf"),
-    "xorg.conf": os.path.abspath("/etc/X11/xorg.conf.d/xorg.conf")
+    "xorg.conf": os.path.abspath("/etc/X11/xorg.conf.d/xorg.conf"),
+    "kernel_config": os.path.abspath("/usr/src/linux/.config")
 }
 
 files_to_compress = []
@@ -96,19 +113,3 @@ except TarError as e:
 
 
 print(f"Files written to {the_file}")
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
